@@ -1,0 +1,16 @@
+services:
+  hub:
+    build: .
+    image: engineering-knowledge-hub:local
+    user: "${HUB_UID:-1000}:${HUB_GID:-1000}"
+    ports:
+      - "127.0.0.1:${HUB_PORT:-8765}:8765"
+    environment:
+      HUB_CONTROL_TRANSPORT: bridge
+      HUB_PORT: ${HUB_PORT:-8765}
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+    restart: unless-stopped

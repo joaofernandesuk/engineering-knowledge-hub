@@ -1,0 +1,14 @@
+.venv/
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+*.db
+.DS_Store
+runtime/
+**/graphify-out/
+*.egg-info/
