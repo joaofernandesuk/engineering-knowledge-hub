@@ -17,7 +17,7 @@ from .control import ControlError, request as agent_request, bridge_next, bridge
 from .index import SearchIndex
 from .knowledge import KnowledgeIndex, safe_relative
 
-app = FastAPI(title="Engineering Knowledge Hub", version="0.1.0", docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="Reponary", version="0.1.0", docs_url=None, redoc_url=None, openapi_url=None)
 knowledge = KnowledgeIndex(settings.vault, refresh_seconds=0)
 search_index = SearchIndex(knowledge)
 GRAPH_ASSETS = {".html", ".json", ".md", ".js", ".css", ".svg", ".png", ".jpg", ".jpeg", ".woff", ".woff2"}

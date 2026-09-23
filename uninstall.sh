@@ -16,4 +16,4 @@ if [[ -f "$HUB_DATA_DIR/agent.pid" ]]; then
   if [[ "$pid" =~ ^[0-9]+$ ]]; then kill "$pid" 2>/dev/null || true; fi
   rm -f "$HUB_DATA_DIR/agent.pid"
 fi
-printf 'Hub stopped. Runtime remains at %s. Repositories, Graphify output, and Markdown vault were not removed.\n' "$HUB_DATA_DIR"
+printf 'Reponary stopped. Runtime remains at %s. Repositories, Graphify output, and Markdown vault were not removed.\n' "$HUB_DATA_DIR"

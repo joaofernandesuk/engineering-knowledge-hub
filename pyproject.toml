@@ -1,5 +1,5 @@
 [project]
-name = "engineering-knowledge-hub"
+name = "reponary"
 version = "0.1.0"
 description = "Local-first code intelligence and Markdown engineering knowledge"
 requires-python = ">=3.12"

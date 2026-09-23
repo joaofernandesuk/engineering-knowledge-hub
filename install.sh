@@ -87,9 +87,9 @@ for attempt in $(seq 1 30); do
   sleep 1
 done
 if ! curl --silent --fail "http://127.0.0.1:$HUB_PORT/api/session" >/dev/null; then
-  echo "Hub did not become healthy; inspect $HUB_DATA_DIR/logs/agent.log" >&2; exit 1
+  echo "Reponary did not become healthy; inspect $HUB_DATA_DIR/logs/agent.log" >&2; exit 1
 fi
-printf '\nHub: http://127.0.0.1:%s\n' "$HUB_PORT"
+printf '\nReponary: http://127.0.0.1:%s\n' "$HUB_PORT"
 printf 'Local access key: %s\n' "$(cat "$HUB_DATA_DIR/agent/web.token")"
 printf 'Keep this key private. It is also stored in %s/agent/web.token (mode 600).\n' "$HUB_DATA_DIR"
 install_complete=1

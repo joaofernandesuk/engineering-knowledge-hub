@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 274 64" role="img" aria-labelledby="title">
+  <title id="title">Reponary</title>
+  <path fill="#065F46" d="M5 11c0-2.2 1.8-4 4-4h17c3.4 0 5.6 1.2 6 2v43c-2.1-2.1-4.5-3-8-3H9c-2.2 0-4-1.8-4-4V11Z"/>
+  <path fill="#10B981" d="M59 11c0-2.2-1.8-4-4-4H38c-3.4 0-5.6 1.2-6 2v43c2.1-2.1 4.5-3 8-3h15c2.2 0 4-1.8 4-4V11Z"/>
+  <path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.8" d="m17 24-5 6 5 6m8-12 5 6-5 6"/>
+  <path fill="none" stroke="#fff" stroke-linecap="round" stroke-width="3.8" d="m21.5 21-3 18M39 24h11M39 31h11M39 38h8"/>
+  <text x="74" y="43" fill="#111827" font-family="Inter,ui-sans-serif,system-ui,sans-serif" font-size="35" font-weight="750" letter-spacing="-1.5">Reponary</text>
+</svg>

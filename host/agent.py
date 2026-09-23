@@ -150,11 +150,11 @@ class HostAgent:
                     return config
                 except (OSError, ValueError, TypeError, AgentError):
                     continue
-            raise AgentError("Invalid Hub configuration and no valid backup is available") from exc
+            raise AgentError("Invalid Reponary configuration and no valid backup is available") from exc
 
     def _validate_config(self, config):
         if not isinstance(config, dict) or set(config) - {"vault"}:
-            raise AgentError("Invalid Hub configuration")
+            raise AgentError("Invalid Reponary configuration")
         vault = config.get("vault")
         if vault is not None:
             checked = self._safe_path(vault, must_exist=False)
@@ -249,8 +249,8 @@ class HostAgent:
         cmd = ["docker", "compose", "-p", os.environ.get("HUB_COMPOSE_PROJECT", "engineering-knowledge-hub"), "-f", str(self.source / "compose.yaml"), "-f", str(self.override_path), "up", "-d", "--force-recreate"]
         try:
             p = run_process(cmd, cwd=self.source, timeout=300, env={**os.environ, "HUB_UID": str(os.getuid()), "HUB_GID": str(os.getgid())})
-        except (OSError, subprocess.TimeoutExpired) as exc: raise AgentError("Hub reconciliation failed: " + str(exc)) from exc
-        if p.returncode: raise AgentError("Hub reconciliation failed: " + (p.stderr or p.stdout)[-1000:])
+        except (OSError, subprocess.TimeoutExpired) as exc: raise AgentError("Reponary reconciliation failed: " + str(exc)) from exc
+        if p.returncode: raise AgentError("Reponary reconciliation failed: " + (p.stderr or p.stdout)[-1000:])
 
     def _commit_state(self, rows, config=None):
         config = config if config is not None else self.config()
@@ -427,7 +427,7 @@ class HostAgent:
             repo = self._safe_path(row["repo"])
             graph = repo / "graphify-out" / "graph.json"
             self._graphify(repo, graph.is_file(), op_id)
-            self._event(op_id, "Refreshing Hub", "running")
+            self._event(op_id, "Refreshing Reponary", "running")
             self._render_override(self.registry(), self.config())
             self._reconcile()
             return {"project_id": row["id"]}

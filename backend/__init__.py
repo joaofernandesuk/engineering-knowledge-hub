@@ -1,1 +1,1 @@
-"""Engineering Knowledge Hub backend."""
+"""Reponary backend."""
