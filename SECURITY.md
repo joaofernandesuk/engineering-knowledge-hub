@@ -23,9 +23,9 @@ This is a single-user local developer tool. Do not expose it to a LAN or the pub
 | Arbitrary command injection | Operation allow-list and subprocess argument arrays; no browser-supplied command string. |
 | Cross-project access | Graph routes require registered IDs and confined asset paths. Vault notes remain globally browseable to the authenticated local user by design. |
 | Malicious Markdown | Markdown HTML is sanitized with Bleach and restricted schemes; scripts and event handlers are stripped. |
-| Malicious Graphify HTML/SVG | Served with a restrictive sandbox Content Security Policy, no same-origin access granted to embedded script. |
+| Malicious Graphify HTML/SVG | Served with a restrictive sandbox Content Security Policy, no same-origin access granted to embedded script. Graphify HTML may execute inline viewer code and load only the pinned local vis-network asset. The asset is public static JavaScript with CORS enabled solely so its existing SRI attribute works from the sandbox's opaque origin; it cannot access the authenticated app. Viewer `connect-src` remains `none`. |
 | Docker escape or Docker socket exposure | No Docker socket, privileged mode, or write mounts in the web container. Host agent remains the narrow privileged boundary. |
 | Local token disclosure | Access keys live in a private runtime folder, outside source control. Protect backups of that folder. |
 | Untrusted dependencies | Build from declared packages; review dependency changes and licenses before release. |
 
-No telemetry, analytics, crash upload, external CDN, or automatic update checks are present. Graphify is invoked with `--code-only` for a new graph to avoid optional semantic network calls. An externally installed Graphify CLI has its own security model and should be obtained from its official source.
+No telemetry, analytics, crash upload, external CDN, or automatic update checks are present in the app. Graphify's generated HTML contains a pinned vis-network CDN reference, which the Hub substitutes with an SRI-identical local copy only when serving the graph viewer. Graphify is invoked with `--code-only` for a new graph to avoid optional semantic network calls. An externally installed Graphify CLI has its own security model and should be obtained from its official source.

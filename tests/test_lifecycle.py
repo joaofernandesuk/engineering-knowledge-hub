@@ -1,4 +1,6 @@
 import json
+import base64
+import hashlib
 import os
 import subprocess
 import threading
@@ -109,6 +111,39 @@ def test_security(setup):
     assert post(client,'/preview',csrf,{'path':str(link)}).status_code==503
     poison=post(client,'/projects',csrf,{'path':str(repo),'name':'<script>alert(1)</script>','graphify':False,'generate_graph':False,'knowledge':False})
     assert await_op(client,poison.json()['operation_id'])['status']=='failed'
+
+def test_graphify_viewer_uses_sri_pinned_local_script(setup):
+    agent,client,csrf,repo,vault,tmp=setup
+    add=post(client,'/projects',csrf,{'path':str(repo),'name':'Demo Project','graphify':False,'generate_graph':False,'knowledge':False})
+    result=await_op(client,add.json()['operation_id'])
+    assert result['status']=='complete',result
+    pid=result['events'][-1]['detail']['project_id']
+    graph=repo/'graphify-out';graph.mkdir()
+    graph.joinpath('graph.html').write_text(
+        '<script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js" '
+        'integrity="sha384-Ux6phic9PEHJ38YtrijhkzyJ8yQlH8i/+buBR8s3mAZOJrP1gwyvAcIYl3GWtpX1" '
+        'crossorigin="anonymous"></script><script>new vis.Network()</script>'
+    )
+    (tmp/'graphs').mkdir()
+    (tmp/'graphs'/pid).symlink_to(graph)
+    response=client.get(f'/api/projects/{pid}/graph/graph.html')
+    assert response.status_code==200
+    assert response.headers['content-type'].startswith('text/html')
+    assert 'https://unpkg.com' not in response.text
+    assert 'src="/graphify-assets/vis-network-9.1.6.min.js"' in response.text
+    assert 'new vis.Network()' in response.text
+    csp=response.headers['content-security-policy']
+    assert 'sandbox allow-scripts' in csp
+    assert 'allow-same-origin' not in csp
+    assert "connect-src 'none'" in csp
+    assert 'unpkg.com' not in csp
+    assert 'http://testserver/graphify-assets/vis-network-9.1.6.min.js' in csp
+    script=client.get('/graphify-assets/vis-network-9.1.6.min.js')
+    assert script.status_code==200
+    assert script.headers['content-type'].startswith('application/javascript')
+    assert script.headers['access-control-allow-origin']=='*'
+    sri=base64.b64encode(hashlib.sha384(script.content).digest()).decode()
+    assert f'sha384-{sri}' in response.text
 
 def test_markdown_sanitized(setup):
     agent,client,csrf,repo,vault,tmp=setup

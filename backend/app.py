@@ -10,7 +10,7 @@ import time
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote
 from fastapi import FastAPI, Header, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field
 from .config import settings
 from .control import ControlError, request as agent_request, bridge_next, bridge_result
@@ -21,6 +21,9 @@ app = FastAPI(title="Engineering Knowledge Hub", version="0.1.0", docs_url=None,
 knowledge = KnowledgeIndex(settings.vault, refresh_seconds=0)
 search_index = SearchIndex(knowledge)
 GRAPH_ASSETS = {".html", ".json", ".md", ".js", ".css", ".svg", ".png", ".jpg", ".jpeg", ".woff", ".woff2"}
+GRAPHIFY_VIS_URL = b"https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"
+GRAPHIFY_VIS_PATH = "/graphify-assets/vis-network-9.1.6.min.js"
+GRAPHIFY_VIS_FILE = Path(__file__).resolve().parent / "vendor" / "vis-network-9.1.6.min.js"
 
 class Login(BaseModel):
     token: str
@@ -283,8 +286,17 @@ def bootstrap_prompt(project_id: str):
     if not p: raise HTTPException(404, "Project not found")
     return {"prompt": f"Review project {p['name']} ({p['id']}) at {p['repo']}. Its Engineering Knowledge mapping is {p.get('obsidian_note') or 'not configured'}. Use Graphify first if present, then verify every important claim against current source and configuration. Read README, AGENTS.md, CLAUDE.md, architecture docs and relevant Git history. Do not modify application source. Propose conservative notes in the vault Inbox for human review. Create retrospective ADRs only with evidence of an actual decision, and incident notes only with evidence of a real failure. Do not invent history or treat Graphify inferences as confirmed facts."}
 
+@app.get(GRAPHIFY_VIS_PATH)
+def graphify_vis_asset():
+    # Public, immutable library asset: sandboxed Graphify pages have an opaque
+    # origin and load this with crossorigin="anonymous" for SRI validation.
+    response = FileResponse(GRAPHIFY_VIS_FILE, media_type="application/javascript")
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return response
+
 @app.get("/api/projects/{project_id}/graph/{asset:path}")
-def graph_asset(project_id: str, asset: str):
+def graph_asset(project_id: str, asset: str, request: Request):
     if not _project(project_id): raise HTTPException(404, "Project not found")
     if not asset or asset.startswith("/") or ".." in PurePosixPath(asset).parts or "\\" in asset:
         raise HTTPException(400, "Invalid graph asset")
@@ -292,9 +304,25 @@ def graph_asset(project_id: str, asset: str):
     root = (settings.graphs / project_id).resolve()
     if target.suffix.lower() not in GRAPH_ASSETS or target.is_symlink() or not target.is_file() or not target.resolve().is_relative_to(root):
         raise HTTPException(404, "Graph asset not found")
-    response = FileResponse(target, media_type=mimetypes.guess_type(target.name)[0] or "application/octet-stream")
-    if target.suffix.lower() in (".html", ".svg"):
-        response.headers["Content-Security-Policy"] = "sandbox allow-scripts; default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'none'; form-action 'none'"
+    if target.suffix.lower() == ".html":
+        # Graphify 0.9.x references a pinned CDN script. Replace only that
+        # exact URL; leave all graph data and viewer code otherwise unchanged.
+        # The sandbox keeps the document at an opaque origin, isolated from
+        # the authenticated app. Its one external script is our local SRI-
+        # pinned copy, with no network connections permitted by the viewer.
+        content = target.read_bytes().replace(GRAPHIFY_VIS_URL, GRAPHIFY_VIS_PATH.encode())
+        response = Response(content, media_type="text/html")
+        origin = str(request.base_url).rstrip("/")
+        response.headers["Content-Security-Policy"] = (
+            "sandbox allow-scripts; default-src 'none'; "
+            f"script-src 'unsafe-inline' 'unsafe-eval' {origin}{GRAPHIFY_VIS_PATH}; "
+            "style-src 'unsafe-inline'; img-src data: blob:; "
+            "connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'"
+        )
+    else:
+        response = FileResponse(target, media_type=mimetypes.guess_type(target.name)[0] or "application/octet-stream")
+        if target.suffix.lower() == ".svg":
+            response.headers["Content-Security-Policy"] = "sandbox allow-scripts; default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'none'; form-action 'none'"
     return response
 
 @app.get("/{path:path}")

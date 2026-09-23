@@ -16,6 +16,7 @@ This source uses dependencies installed from their own package registries at bui
 | TanStack Query | MIT | Browser data state | Yes, compiled bundle | Compatible |
 | Vite | MIT | Build tool | No, build stage only | Compatible |
 | TypeScript | Apache-2.0 | Build tool | No, build stage only | Compatible |
+| vis-network 9.1.6 | MIT | Graphify viewer rendering; exact SRI-pinned standalone UMD file vendored in `backend/vendor/` | Yes | [MIT notice](backend/vendor/LICENSE-MIT) retained; SHA-256 `576bb887733eb01bb52ee75b90ef46d818454de5fddb5b616fb8a298d307ca12` |
 | Graphify / `graphifyy` | Apache-2.0 for current 0.9.65 package | User-installed external CLI | No | Optional, independent project; do not bundle |
 | Obsidian desktop | Proprietary terms | Optional editor/protocol | No | Never redistribute or imply affiliation |
 | Node 22 Alpine image | Multiple upstream licenses | Build stage | No in final image | Review image bill of materials before image publication |
