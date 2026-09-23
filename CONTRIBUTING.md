@@ -1,6 +1,6 @@
 # Contributing
 
-This is a 0.1.0 local-first preview. Work from a fork or local checkout and open focused pull requests when a public repository exists.
+This is a 0.1.0 local-first preview. Work from a fork or local checkout and open focused pull requests against this repository.
 
 ## Setup
 

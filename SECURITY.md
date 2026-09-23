@@ -1,6 +1,6 @@
 # Security policy
 
-This is a single-user local developer tool. Do not expose it to a LAN or the public internet. Report suspected vulnerabilities privately to the maintainers of the future repository; do not post exploit details in a public issue. No public security contact has been established yet.
+This is a single-user local developer tool. Do not expose it to a LAN or the public internet. Report suspected vulnerabilities privately to the repository maintainer; do not post exploit details in a public issue. No dedicated security contact has been established yet.
 
 ## Boundaries
 

@@ -29,7 +29,7 @@ No private screenshots are included.
 
 ## Requirements
 
-- macOS with Docker Desktop, Docker Compose, and Python 3.9 or newer; or Linux with Docker Compose and Python 3.9 or newer. Development installs require Python 3.12 or newer.
+- macOS with Docker Desktop, Docker Compose, Git, and Python 3.9 or newer; or Linux with Docker Compose, Git, and Python 3.9 or newer. Docker must be running before installation. Development installs require Python 3.12 or newer.
 - A browser on the same computer.
 - Graphify CLI is optional. If installed, it runs on the host in local code-only mode for new graphs. Non-code semantic extraction is not invoked by the Hub.
 - Obsidian desktop is optional. Any Markdown directory works as a vault.
@@ -38,15 +38,19 @@ Windows has not been tested. Linux host-agent persistence uses `nohup` in this p
 
 ## Install
 
-From a local clone or source checkout:
+Clone the public repository, enter its folder, and run the installer:
 
 ```sh
+git clone https://github.com/joaofernandesuk/engineering-knowledge-hub.git
+cd engineering-knowledge-hub
 ./install.sh
 ```
 
-The installer copies the small application source and pinned runtime dependency list to `~/.local/share/engineering-knowledge-hub/`, builds the web image there, starts the native host agent, and prints a local access key. On macOS it registers a per-user LaunchAgent so the agent survives terminal exit. The installed copy also avoids macOS background-service access problems when the development checkout lives in Documents. Open the printed `http://127.0.0.1:8765` URL and enter that key. Choose an existing Markdown directory, or create a directory first and select it. Then click **+ Add Project**.
+The installer copies the small application source and pinned runtime dependency list to `~/.local/share/engineering-knowledge-hub/`, builds the web image there, and starts the native host agent. No separate `docker compose` command is needed. On macOS it registers a per-user LaunchAgent so the agent survives terminal exit. The installed copy also avoids macOS background-service access problems when the development checkout lives in Documents.
 
-If port 8765 is occupied, set `HUB_PORT=8766` before running the installer. Set `HUB_DATA_DIR` to change the private runtime location or `HUB_INSTALL_DIR` to change the installed application copy. The default private runtime is `~/.engineering-knowledge-hub/`. Rerun the installer after updating the source checkout. The installer was tested with an isolated runtime and port. It does not import or modify another Hub installation.
+The installer generates a local access key on first run and prints it at the end. This is the Hub's own sign-in key, not a GitHub credential. Open the printed `http://127.0.0.1:8765` URL and enter the key. It remains in `~/.engineering-knowledge-hub/agent/web.token` (or under your custom `HUB_DATA_DIR`) if you need it again. On macOS, `pbcopy < ~/.engineering-knowledge-hub/agent/web.token` copies the default key without displaying it. Choose an existing Markdown directory, or create a directory first and select it. Then click **+ Add Project** and enter the absolute path to a source folder.
+
+If port 8765 is occupied, set `HUB_PORT=8766` before running the installer. Set `HUB_DATA_DIR` to change the private runtime location or `HUB_INSTALL_DIR` to change the installed application copy. The default private runtime is `~/.engineering-knowledge-hub/`. To update an existing installation, run `git pull --ff-only` and `./install.sh` again from the checkout. The installer reuses that installation's private runtime and vault configuration. The installer was tested with an isolated runtime and port. It does not import or modify another Hub installation.
 
 Normal project management after installation happens in the browser. The repository path field is used because a portable native folder picker would require broader host integration.
 
